@@ -2,6 +2,7 @@ package io.aroundij.domain;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Pattern;
 
 import java.util.Objects;
 
@@ -14,6 +15,8 @@ public class Book extends PanacheEntityBase {
     private String title;
     @Column(name = "isbn_13")
     private String isbn13;
+    @Pattern(regexp = "\\d{4}")
+    private int year;
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = Author.class, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "author_id")
     private Author author;
@@ -50,16 +53,24 @@ public class Book extends PanacheEntityBase {
         this.author = author;
     }
 
+    public int getYear() {
+        return year;
+    }
+
+    public void setYear(int year) {
+        this.year = year;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Book book)) return false;
-        return bookId == book.bookId && Objects.equals(title, book.title) && Objects.equals(isbn13, book.isbn13) && Objects.equals(author, book.author);
+        return bookId == book.bookId && year == book.year && Objects.equals(title, book.title) && Objects.equals(isbn13, book.isbn13) && Objects.equals(author, book.author);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(bookId, title, isbn13, author);
+        return Objects.hash(bookId, title, isbn13, year, author);
     }
 
     @Override
@@ -68,8 +79,8 @@ public class Book extends PanacheEntityBase {
                 "bookId=" + bookId +
                 ", title='" + title + '\'' +
                 ", isbn13='" + isbn13 + '\'' +
+                ", year=" + year +
                 ", author=" + author +
                 '}';
     }
-
 }
