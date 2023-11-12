@@ -9,6 +9,7 @@ import io.quarkus.logging.Log;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -38,8 +39,11 @@ public class BookResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<Book> getBooks() {
-        return Book.listAll();
+    public List<BookDTO> getBooks() {
+        List<Book> books = Book.listAll();
+        return CollectionUtils.emptyIfNull(books)
+                .stream().map(BookMapper.INSTANCE::bookToBookDTO)
+                .toList();
     }
 
     @DELETE
@@ -57,6 +61,7 @@ public class BookResource {
 
     @GET
     @Path("/{isbn13}")
+    @Produces(MediaType.APPLICATION_JSON)
     public BookDTO findBook(@PathParam(ISBN_13) String isbn13) {
         Log.info("Begin findBook");
         Book book = Book.find(ISBN_13, isbn13).firstResult();
